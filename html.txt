@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Quiz Creator</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      padding: 20px;
+    }
+    .question-container {
+      margin: 20px 0;
+    }
+    .question {
+      font-size: 20px;
+    }
+    .answer-button {
+      margin-top: 10px;
+      padding: 10px;
+      font-size: 16px;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+    .quiz-link {
+      margin-top: 20px;
+      font-size: 18px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Welcome to the Quiz!</h1>
+  <div id="question-container">
+    <!-- Dynamic content will be inserted here -->
+  </div>
+  <button id="next-question-btn" class="answer-button">Next Question</button>
+  <div class="quiz-link" id="quiz-link">
+    <!-- Generated link will appear here -->
+  </div>
+
+  <script>
+    const quizData = [
+      {
+        question: "What is your friend's favorite color?",
+        options: ["Red", "Blue", "Green", "Yellow"],
+        correctAnswer: "Blue"
+      },
+      {
+        question: "Where was your friend born?",
+        options: ["New York", "Los Angeles", "Chicago", "Miami"],
+        correctAnswer: "Chicago"
+      },
+      // Add 8 more questions here
+    ];
+
+    let currentQuestionIndex = 0;
+    let score = 0;
+
+    function generateQuizLink() {
+      const uniqueId = new Date().getTime();
+      const quizDataString = JSON.stringify(quizData);
+      localStorage.setItem(`quiz-${uniqueId}`, quizDataString);
+      return `${window.location.origin}/quiz.html?id=${uniqueId}`;
+    }
+
+    function loadQuestion() {
+      const questionContainer = document.getElementById("question-container");
+      const question = quizData[currentQuestionIndex];
+
+      questionContainer.innerHTML = `
+        <div class="question-container">
+          <div class="question">${question.question}</div>
+          <div>
+            ${question.options.map(option => 
+              `<button class="answer-button" onclick="checkAnswer('${option}')">${option}</button>`
+            ).join('')}
+          </div>
+        </div>
+      `;
+    }
+
+    function checkAnswer(selectedOption) {
+      const question = quizData[currentQuestionIndex];
+      if (selectedOption === question.correctAnswer) {
+        score++;
+      }
+      currentQuestionIndex++;
+      
+      if (currentQuestionIndex < quizData.length) {
+        loadQuestion();
+      } else {
+        showResults();
+      }
+    }
+
+    function showResults() {
+      document.body.innerHTML = `
+        <h1>Quiz Completed!</h1>
+        <p>Your score: ${score} / ${quizData.length}</p>
+        <p>Share your quiz with this link:</p>
+        <div class="quiz-link"><a href="${generateQuizLink()}" target="_blank">Click here to share your quiz!</a></div>
+      `;
+    }
+
+    loadQuestion();
+  </script>
+</body>
+</html>

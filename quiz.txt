@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Take the Quiz</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      padding: 20px;
+    }
+    .question-container {
+      margin: 20px 0;
+    }
+    .question {
+      font-size: 20px;
+    }
+    .answer-button {
+      margin-top: 10px;
+      padding: 10px;
+      font-size: 16px;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <h1>Answer the Quiz!</h1>
+  <div id="question-container"></div>
+  <button id="next-question-btn" class="answer-button" style="display:none;">Next Question</button>
+
+  <script>
+    const urlParams = new URLSearchParams(window.location.search);
+    const quizId = urlParams.get('id');
+    let quizData = JSON.parse(localStorage.getItem(`quiz-${quizId}`) || "[]");
+    let currentQuestionIndex = 0;
+    let score = 0;
+
+    function loadQuestion() {
+      if (currentQuestionIndex >= quizData.length) {
+        showResults();
+        return;
+      }
+      const question = quizData[currentQuestionIndex];
+      document.getElementById("question-container").innerHTML = `
+        <div class="question-container">
+          <div class="question">${question.question}</div>
+          <div>
+            ${question.options.map(option => 
+              `<button class="answer-button" onclick="checkAnswer('${option}')">${option}</button>`
+            ).join('')}
+          </div>
+        </div>
+      `;
+    }
+
+    function checkAnswer(selectedOption) {
+      if (selectedOption === quizData[currentQuestionIndex].correctAnswer) {
+        score++;
+      }
+      currentQuestionIndex++;
+      document.getElementById("next-question-btn").style.display = "block";
+    }
+
+    document.getElementById("next-question-btn").addEventListener("click", () => {
+      document.getElementById("next-question-btn").style.display = "none";
+      loadQuestion();
+    });
+
+    function showResults() {
+      document.body.innerHTML = `
+        <h1>Quiz Completed!</h1>
+        <p>Your score: ${score} / ${quizData.length}</p>
+      `;
+    }
+
+    loadQuestion();
+  </script>
+</body>
+</html>
